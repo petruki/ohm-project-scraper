@@ -1,0 +1,19 @@
+{
+  "name": "ohm-project-scraper",
+  "version": "1.0.0",
+  "author": "Roger Floriano (petruki)",
+  "license": "MIT",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "env-cmd -e dev node ./src/index.js"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.3",
+    "mongoose": "^5.11.8",
+    "request": "^2.88.2"
+  },
+  "devDependencies": {
+    "env-cmd": "^10.1.0"
+  }
+}
