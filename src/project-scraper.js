@@ -21,7 +21,7 @@ function scrapPage(data) {
         .children('a');
 
     content.each((index, elem) => {
-        if (result[index].url) {
+        if (result[index] && result[index].url) {
             result[index].project = elem.children[0].data;
             result[index].page = elem.attribs.href;
         }
@@ -33,47 +33,58 @@ function scrapPage(data) {
         .children('a');
 
     content.each((index, elem) => {
-        result[index].members = elem.children[0].data;
+        if (result[index]) {
+            result[index].members = elem.children[0].data;
+        }
     });
 
     //load description
     content = $('div.short-desc').children('span.field-content');
     content.each((index, elem) => {
-        result[index].description = elem.children[0].data;
+        if (result[index]) {
+            result[index].description = elem.children[0].data;
+        }
     });
 
     //load modification date
     content = $('div.update-date').children('span.field-content');
     content.each((index, elem) => {
-        result[index].updated = elem.children[0].data;
+        if (result[index]) {
+            result[index].updated = elem.children[0].data;
+        }
     });
 
     //load creation date
     content = $('div.creation-date').children('span.field-content');
     content.each((index, elem) => {
-        result[index].created = elem.children[0].data;
+        if (result[index]) {
+            result[index].created = elem.children[0].data;
+        }
     });
 
     //load moods
     content = $('div.mood-tags').children('span.field-content');
     content.each((index, elem) => {
-        result[index].moods = elem.children[0].parent.children.map(a => {
-            if (a.children && a.children[0])
-                return a.children[0].data;
-        }).filter(e => e);
+        if (result[index]) {
+            result[index].moods = elem.children[0].parent.children.map(a => {
+                if (a.children && a.children[0])
+                    return a.children[0].data;
+            }).filter(e => e);
+        }
     });
 
     //load session type
     content = $('div.permissions').children('span.field-content');
     content.each((index, elem) => {
-        result[index].session_type = elem.children[0].children[0].data;
+        if (result[index]) {
+            result[index].session_type = elem.children[0].children[0].data;
+        }
     });
 
-    return result;
+    return result.filter(p => p.url);
 }
 
 function fetchPage(view_alias, page) {
-
     const defaultOptions = {
         url: `http://www.ohmstudio.com/dash/list?view_alias=${view_alias}&page=${page}`,
         headers: {
@@ -98,8 +109,15 @@ function fetchPage(view_alias, page) {
                     // console.log(result);
                     console.log(meta);
                     
-                    Project.insertMany(result);
-                    fetchPage('online_projects', ++page).catch((e) => console.log(e));
+                    if (meta.page_count > page && result.length > 0) {
+                        Project.insertMany(result);
+                        fetchPage('online_projects', ++page)
+                            .catch((e) => console.log(e))
+                            .finally(() => resolve(meta));
+                    } else {
+                        console.log('done');
+                        resolve(meta);
+                    }
                 }
             }
         );
@@ -107,4 +125,6 @@ function fetchPage(view_alias, page) {
 }
 
 // Starts execution
-fetchPage('online_projects', 0).catch((e) => console.log(e));
+fetchPage('online_projects', 43)
+    .catch((e) => console.log(e))
+    .finally(() => process.exit());
