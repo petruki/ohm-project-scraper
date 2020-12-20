@@ -120,14 +120,15 @@ async function updateProjects() {
     console.log(`Starting to update ${projects.length} documents...`);
     for (let i = 0; i < projects.length; i++) {
         await fetchPage(projects[i].page)
-            .then(data => {
+            .then(async (data) => {
                 projects[i].last_scrap = Date.now();
                 projects[i].admins = data.admins;
                 projects[i].contributors = data.contributors;
                 projects[i].comments = data.comments;
                 projects[i].styles = data.styles;
                 projects[i].moods = data.moods;
-                projects[i].save();
+                projects[i].description = data.description;
+                await projects[i].save();
             })
             .catch((e) => console.log(e))
             .finally(() => console.log(`Successfully updated ${projects[i].page} - ${projects.length - i} remaining`));

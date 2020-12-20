@@ -41,7 +41,18 @@ const projectSchema = new mongoose.Schema({
     moods: [{}],
     styles: [{}],
     admins: [{}],
-    contributors: [{}]
+    contributors: [{}],
+    comments: [{
+        author: {
+            type: String
+        },
+        date: {
+            type: String
+        },
+        content: {
+            type: String
+        }
+    }]
 });
 
 const Project = mongoose.model('Project', projectSchema);
