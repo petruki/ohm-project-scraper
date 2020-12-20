@@ -11,7 +11,7 @@ function scrapPage(data) {
     let content = $('div.miniplayer').children('a');
     content.each((index, elem) => {
         result.push({
-            url: elem.attribs.href
+            url: elem.attribs.href.split('?')[0]
         });
     });
 
@@ -96,7 +96,7 @@ function fetchPage(view_alias, page) {
     return new Promise((resolve, reject) => {
         request(
             Object.assign({}, defaultOptions, {}),
-            (error, response, body) => {
+            async (error, response, body) => {
                 if (error) {
                     return reject(`Error making the request: ${error}`, null);
                 }
@@ -110,7 +110,19 @@ function fetchPage(view_alias, page) {
                     console.log(meta);
                     
                     if (meta.page_count > page && result.length > 0) {
-                        Project.insertMany(result);
+                        // Initialize DB
+                        // Project.insertMany(result);
+                        
+                        // Update data
+                        for (let index = 0; index < result.length; index++) {
+                            const element = result[index];
+                            const project = await Project.findOne({ page: element.page });
+                            if (project) {
+                                project.url = element.url;
+                                await project.save();
+                            }
+                        }
+
                         fetchPage('online_projects', ++page)
                             .catch((e) => console.log(e))
                             .finally(() => resolve(meta));
@@ -125,6 +137,6 @@ function fetchPage(view_alias, page) {
 }
 
 // Starts execution
-fetchPage('online_projects', 0)
+fetchPage('online_projects', 36)
     .catch((e) => console.log(e))
     .finally(() => process.exit());
