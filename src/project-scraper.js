@@ -125,6 +125,6 @@ function fetchPage(view_alias, page) {
 }
 
 // Starts execution
-fetchPage('online_projects', 43)
+fetchPage('online_projects', 0)
     .catch((e) => console.log(e))
     .finally(() => process.exit());

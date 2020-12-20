@@ -1,6 +1,10 @@
 const mongoose = require('mongoose');
 
 const projectSchema = new mongoose.Schema({
+    last_scrap: {
+        type: Number,
+        default: 0
+    },
     url: {
         type: String,
         trim: true
@@ -11,7 +15,8 @@ const projectSchema = new mongoose.Schema({
     },
     page: {
         type: String,
-        trim: true
+        trim: true,
+        unique: true
     },
     members: {
         type: String,
@@ -34,6 +39,7 @@ const projectSchema = new mongoose.Schema({
         trim: true
     },
     moods: [{}],
+    styles: [{}],
     admins: [{}],
     contributors: [{}]
 });

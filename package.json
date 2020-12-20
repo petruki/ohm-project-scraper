@@ -6,8 +6,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "project": "env-cmd -e dev node ./src/project-scraper.js",
-    "member": "env-cmd -e dev node ./src/member-scraper.js"
+    "project": "env-cmd -e prod node ./src/project-scraper.js",
+    "detail": "env-cmd -e prod node ./src/project-detail-scraper.js"
   },
   "dependencies": {
     "cheerio": "^1.0.0-rc.3",
