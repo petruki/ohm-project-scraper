@@ -132,7 +132,7 @@ async function updateProjects() {
     for (let i = 0; i < projects.length; i++) {
         await fetchPage(projects[i].page)
             .then(async (data) => {
-                Object.keys(p2).forEach((key) => projects[i][key] = data[key]);
+                Object.keys(data).forEach((key) => projects[i][key] = data[key]);
                 projects[i].last_scrap = Date.now();
                 await projects[i].save();
             })
