@@ -98,7 +98,11 @@ function fetchPage(profile) {
                 if (response.body) {
                     let result;
                     try {
-                        result = scrapPage(response.body);
+                        if (response.statusCode === 404) {
+                            return reject({ code: 404 }, null);
+                        } else {
+                            result = scrapPage(response.body);
+                        }
                     } catch (e) {
                         console.log(`Error updating: ${profile}`, e);
                     } finally {
@@ -115,7 +119,14 @@ async function updateProjects() {
     await new Promise(resolve => setTimeout(resolve, 10000));
     
     console.log(`Quering documents...`);
-    let projects = await Project.find({ last_scrap: 0 });
+    // all
+    // let projects = await Project.find({});
+
+    // by date
+    let projects = await Project.find({ last_scrap: { $lt: new Date().setFullYear(2020, 11, 29).valueOf() } });
+
+    // by first scraping
+    // let projects = await Project.find({ last_scrap: 0 });
 
     console.log(`Starting to update ${projects.length} documents...`);
     for (let i = 0; i < projects.length; i++) {
@@ -130,16 +141,29 @@ async function updateProjects() {
                 projects[i].description = data.description;
                 await projects[i].save();
             })
-            .catch((e) => console.log(e))
-            .finally(() => console.log(`Successfully updated ${projects[i].page} - ${projects.length - i} remaining`));
+            .catch(async (e) => {
+                if (e.code && e.code == 404) {
+                    console.log(`Project not found - ${projects[i].page}`);
+                    await projects[i].remove();
+                } else {
+                    console.log(e);
+                }
+            }).finally(() => 
+                console.log(`Successfully updated ${projects[i].page} - ${projects.length - i} remaining`));
     }
 }
 
-// Starts execution
+// Scrape details
 updateProjects().finally(() => process.exit());
 
-// For testing
-// fetchPage('/node/277187')
+// Fetch single project
+// fetchPage('/node/653663')
 //     .then(data => {
 //         console.log(data)
-//     }).catch((e) => console.log(e)).finally(() => process.exit());
+//     }).catch((e) => {
+//         if (e.code && e.code == 404) {
+//             console.log('Project not found - Delme');
+//         } else {
+//             console.log(e)
+//         }
+//     }).finally(() => process.exit());

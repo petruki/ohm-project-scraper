@@ -113,12 +113,23 @@ function fetchPage(view_alias, page) {
                         // Initialize DB
                         // Project.insertMany(result);
                         
-                        // Update data
+                        // Update specific attributes
+                        // for (let index = 0; index < result.length; index++) {
+                        //     const element = result[index];
+                        //     const project = await Project.findOne({ page: element.page });
+                        //     if (project) {
+                        //         project.url = element.url;
+                        //         await project.save();
+                        //     }
+                        // }
+
+                        // Add new projects
                         for (let index = 0; index < result.length; index++) {
                             const element = result[index];
-                            const project = await Project.findOne({ page: element.page });
-                            if (project) {
-                                project.url = element.url;
+                            let project = await Project.findOne({ page: element.page });
+                            if (!project) {
+                                project = new Project({...element});
+                                console.log('New: ' + project.page);
                                 await project.save();
                             }
                         }
@@ -137,6 +148,6 @@ function fetchPage(view_alias, page) {
 }
 
 // Starts execution
-fetchPage('online_projects', 36)
+fetchPage('online_projects', 0)
     .catch((e) => console.log(e))
     .finally(() => process.exit());
